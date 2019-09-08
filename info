@@ -1,0 +1,4 @@
+# 1234567890 401010 F:\\projects\\android\\forked\\Kuroba\\Kuroba\\app\\build\\outputs\\apk\\debug\\Kuroba.apk
+
+# git log ${from}^..HEAD --pretty=format:\"%H - %an, %ar : %s\" --first-parent
+# Run gradle task with commit parameter -> gradlew -Pfrom=a03149610f28aa241c8e06fe2614645a1a11724d getCheckedOutGitCommitHash
