@@ -1,3 +1,4 @@
+import os
 import sys
 import requests
 import subprocess
@@ -64,7 +65,7 @@ def uploadApk(baseUrl, headers, latestCommits):
 
 
 def getLatestCommitsFrom(branchName, latestCommitHash):
-    gradlewFullPath = Path(__file__).parent.absolute() + "\\gradlew"
+    gradlewFullPath = os.path.join(Path(__file__).parent.absolute(), "gradlew")
 
     print("branchName = \"" + str(branchName) + "\", latestCommitHash = \"" + str(
         latestCommitHash) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
