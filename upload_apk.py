@@ -35,7 +35,7 @@ def getLatestCommitHash(baseUrl):
 
 
 def uploadApk(baseUrl, headers, latestCommits):
-    apkPath = "Kuroba/app/build/outputs/apk/debug/Kuroba.apk"
+    apkPath = "app/build/outputs/apk/debug/Kuroba.apk"
     inFile = open(apkPath, "rb")
     try:
         if not inFile.readable():
