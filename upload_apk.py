@@ -3,24 +3,16 @@ import requests
 import subprocess
 from pathlib import Path
 
-def run(*popenargs, input=None, check=False, **kwargs):
-    if input is not None:
-        if 'stdin' in kwargs:
-            raise ValueError('stdin and input arguments may not both be used.')
-        kwargs['stdin'] = subprocess.PIPE
 
-    process = subprocess.Popen(*popenargs, **kwargs)
-    try:
-        stdout, stderr = process.communicate(input)
-    except:
-        process.kill()
-        process.wait()
-        raise
-    retcode = process.poll()
-    if check and retcode:
-        raise subprocess.CalledProcessError(
-            retcode, process.args, output=stdout, stderr=stderr)
-    return retcode, stdout, stderr
+def getApkVersionCode():
+    gradlewFullPath = str(Path(__file__).parent.absolute()) + "/gradlew"
+    arguments = [gradlewFullPath, 'getVersionCode']
+
+    print("getApkVersionCode() arguments: " + str(arguments))
+    stdout = subprocess.check_output(arguments)
+    print("result = " + str(stdout))
+
+    return str(stdout)
 
 
 def getLatestCommitHash(baseUrl):
@@ -70,41 +62,40 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
         latestCommitHash) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
 
     arguments = [gradlewFullPath,
-                 '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName + ' getLastCommitsFromCommitByHash']
+                 '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName,
+                 'getLastCommitsFromCommitByHash']
 
     if len(latestCommitHash) <= 0:
         arguments = [gradlewFullPath,
-                     '-Pbranch_name=' + branchName + ' getLastTenCommits']
+                     '-Pbranch_name=' + branchName,
+                     'getLatestCommit']
 
     print("getLatestCommitsFrom() arguments: " + str(arguments))
+    stdout = subprocess.check_output(arguments)
+    print("result = " + str(stdout))
 
-    retcode, stdout, _ = run(args=arguments, stdout=subprocess.PIPE)
-    resultText = str(stdout)
-
-    print("\n\n")
-    print("getLatestCommitsFrom() getLastCommits result: " + resultText + ", retcode = " + str(retcode))
-
-    if retcode != 0:
-        print("Command returned non zero return code: retcode = " + str(retcode))
-        exit(-1)
-
-    return resultText
+    return str(stdout)
 
 
 if __name__ == '__main__':
-    args = len(sys.argv)
-    if args != 5:
-        print("Bad arguments count, should be 4 got " + str(args) + ", expected arguments: "
+    # First argument is the script full path which we don't need
+    args = len(sys.argv) - 1
+    if args != 3:
+        print("Bad arguments count, should be 3 got " + str(args) + ", expected arguments: "
                                                                     "\n1. Secret key, "
-                                                                    "\n2. Apk version, "
-                                                                    "\n3. Base url, "
-                                                                    "\n4. Branch name")
+                                                                    "\n2. Base url, "
+                                                                    "\n3. Branch name")
         exit(-1)
 
-    headers = dict(SECRET_KEY=sys.argv[1], APK_VERSION=sys.argv[2])
-    baseUrl = sys.argv[3]
-    branchName = sys.argv[4]
+    secretKey = sys.argv[1]
+    apkVersion = getApkVersionCode()
+    baseUrl = sys.argv[2]
+    branchName = sys.argv[3]
     latestCommitHash = ""
+
+    if len(apkVersion) <= 0:
+        print("main() Bad apk version code " + apkVersion)
+        exit(-1)
 
     try:
         latestCommitHash = getLatestCommitHash(baseUrl)
@@ -121,9 +112,13 @@ if __name__ == '__main__':
         exit(-1)
 
     if len(latestCommits) <= 0:
-        print("main() latestCommits is empty, nothing was commited to the project since last build so do nothing, "
+        print("main() latestCommits is empty, nothing was committed to the project since last build so do nothing, "
               "latestCommitHash = " + latestCommitHash)
         exit(0)
+
+    headers = dict(
+        SECRET_KEY=secretKey,
+        APK_VERSION=apkVersion)
 
     uploadApk(baseUrl, headers, latestCommits)
     exit(0)
