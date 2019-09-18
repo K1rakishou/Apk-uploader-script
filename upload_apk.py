@@ -16,7 +16,10 @@ def getApkVersionCode():
 
 
 def getLatestCommitHash(baseUrl):
-    response = requests.get(baseUrl + '/latest_commit_hash')
+    response = requests.get(
+        baseUrl + '/latest_commit_hash',
+        timeout=30)
+    
     if response.status_code != 200:
         print("getLatestCommitHash() Error while trying to get latest commit hash from the server" +
               ", response status = " + str(response.status_code) +
@@ -39,7 +42,8 @@ def uploadApk(baseUrl, headers, latestCommits):
         response = requests.post(
             baseUrl + '/upload',
             files=dict(apk=inFile, latest_commits=latestCommits),
-            headers=headers)
+            headers=headers,
+            timeout=30)
 
         if response.status_code != 200:
             print("uploadApk() Error while trying to upload file" +
