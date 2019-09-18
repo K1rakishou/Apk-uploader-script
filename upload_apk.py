@@ -105,7 +105,7 @@ def checkBranchExists(branchName):
 
         return True
     except Exception as e:
-        print("checkBranchExists() threw an exception, error: " + + str(e))
+        print("checkBranchExists() threw an exception, error: " + str(e))
         return False
 
 if __name__ == '__main__':
